@@ -19,6 +19,48 @@ The page then calls the relay at the address in its `<meta name="awb-relay" cont
 tag, so `server.js` still has to be running. If you start the relay on another port, change that tag.
 When `server.js` serves the page itself, it blanks the tag and the page calls `/api/*` on the same origin.
 
+## Deploy to Netlify
+
+The same relay runs on Netlify as a serverless function, so nothing has to stay running on your computer.
+
+| File | Role |
+|---|---|
+| `relay.js` | The courier logic (search, parsing, validation), shared by the two files below. |
+| `server.js` | Local server: `node server.js`. |
+| `netlify/functions/track.mjs` | Netlify Function serving `/api/track` and `/api/health`, with the same JSON as the local API. |
+| `scripts/build-netlify.js` | Build step: writes `dist/index.html` with the relay address blanked, so the page calls `/api/track` on its own site. Only this file is published. |
+| `netlify.toml` | Build command, publish folder, functions folder and basic security headers. |
+
+**Option A: Netlify CLI (no Git remote needed)**
+
+```bash
+npm install -g netlify-cli
+netlify login
+netlify deploy --build           # first run: choose "Create & configure a new project"; gives a draft URL to test
+netlify deploy --build --prod    # publish to the live URL
+```
+
+**Option B: Git (redeploys on every push)**
+
+1. Push this repository to GitHub, GitLab or Bitbucket.
+2. In Netlify choose **Add new project → Import an existing project** and pick the repository.
+3. Set the production branch to `relay-server` (Project configuration → Build & deploy → Branches).
+   Build command, publish folder and functions folder are read from `netlify.toml`; leave them as detected.
+
+Check it by opening `https://<your-site>.netlify.app/?awb=171100087119` and
+`https://<your-site>.netlify.app/api/health`.
+
+Things to know about the hosted version:
+
+* **It is public.** Anyone with the URL can search any AWB number, exactly as they can on the courier's own site.
+  Share the address only with people who should have it. Netlify's password protection is a paid feature.
+* **Each search is one function call.** A search normally takes about a second. The first one after the site has been
+  idle also has to start the function, so it can take a couple of seconds longer. Netlify's documented limit for
+  synchronous functions is 60 seconds, and some accounts report 10.
+* **Opening `index.html` from disk still works** with `node server.js` running, as above. Only the build step changes the
+  relay address, and it changes it in `dist/`, never in `index.html`.
+* **Local test of the Netlify setup:** `npm run build`, then `npx netlify-cli dev --dir dist`.
+
 ## Why there is a small server
 
 `shreetirupaticourier.net` doesn't send CORS headers, so a browser won't let a page from
@@ -89,7 +131,8 @@ search or its markup changed; `504` when it is too slow.
 ## Things to know
 
 * The relay reads HTML by element id. If the courier redesigns those pages, the parsing in
-  `parseDetail()` / `parseDocList()` in `server.js` is the one place to update.
+  `parseDetail()` / `parseDocList()` in `relay.js` is the one place to update. It applies to both the local
+  server and the Netlify Function.
 * On the live site, `js/FunctionLib2.js` has a syntax error, so `ValidateTracking()` and the
   digits-only key filter never load, and the form submits unchecked. This page applies the same
   12-digit rule itself.

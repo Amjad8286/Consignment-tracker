@@ -1,0 +1,13 @@
+{
+  "name": "awb-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shree Tirupati Courier AWB tracker: static page plus a relay (local server or Netlify Function)",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node scripts/build-netlify.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

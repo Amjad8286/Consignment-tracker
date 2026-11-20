@@ -1,0 +1,23 @@
+# Netlify configuration for the AWB tracker (relay version).
+#   Static page  → dist/index.html   (written by scripts/build-netlify.js)
+#   API          → netlify/functions/track.mjs  at /api/track and /api/health
+
+[build]
+  command = "node scripts/build-netlify.js"
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Local testing with `netlify dev` (run `npm run build` first so dist/ exists).
+[dev]
+  publish = "dist"
+
+# Basic hardening for the page. Results contain only what the courier's public tracking shows.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    X-Frame-Options = "DENY"
