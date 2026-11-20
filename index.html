@@ -40,11 +40,14 @@
   html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
+    min-height: 100vh;
+    display: flex; flex-direction: column;   /* keeps the footer at the bottom on short pages */
     background: var(--bg);
     color: var(--ink);
     font: 400 var(--t-md)/1.5 var(--font-body);
     font-variant-numeric: tabular-nums;
   }
+  main { flex: 1 0 auto; }
   a { color: var(--carbon); text-underline-offset: 2px; }
   :focus-visible { outline: 3px solid var(--carbon); outline-offset: 2px; border-radius: 4px; }
   .visually-hidden {
@@ -53,6 +56,38 @@
   }
 
   .page { max-width: 860px; margin: 0 auto; padding: 48px 20px 64px; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }   /* same width as .page, for header/footer */
+
+  .skip-link {
+    position: absolute; left: 12px; top: -48px; z-index: 10;
+    background: var(--carbon); color: #fff; padding: 10px 14px; border-radius: 6px;
+    font-weight: 600; text-decoration: none;
+  }
+  .skip-link:focus { top: 12px; }
+
+  /* ── site header & navigation ─────────────────────── */
+  .site-header { background: var(--paper); border-bottom: 1px solid var(--line); }
+  .site-header .wrap {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 6px 24px; min-height: 64px;
+  }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; padding: 12px 0; }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 8px; flex: none;
+    background: var(--carbon); color: #fff; display: grid; place-items: center;
+  }
+  .brand-mark svg { width: 18px; height: 18px; }
+  .brand-name { font: 700 var(--t-lg)/1 var(--font-display); letter-spacing: 0.01em; }
+  .brand-sub { font-size: var(--t-xs); color: var(--muted); line-height: 1.2; }
+  .brand-text { display: flex; flex-direction: column; gap: 3px; }
+
+  .nav-list { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .nav-list a {
+    display: block; padding: 8px 12px; border-radius: 6px;
+    color: var(--ink); font-weight: 500; font-size: var(--t-sm); text-decoration: none;
+  }
+  .nav-list a:hover { background: var(--carbon-soft); color: var(--carbon); }
+  .nav-list .ext::after { content: " \2197"; color: var(--muted); }
 
   /* ── header & search ─────────────────────────────── */
   .masthead h1 {
@@ -252,10 +287,48 @@
   }
   @keyframes shimmer { to { background-position: -200% 0; } }
 
-  .site-foot { margin-top: 40px; font-size: var(--t-sm); color: var(--muted); }
-  .site-foot p { margin: 0; max-width: 70ch; }
+  /* ── how-to ─────────────────────────────── */
+  .help { margin-top: 48px; scroll-margin-top: 16px; }
+  .help h2 { margin: 0 0 14px; font: 600 var(--t-lg)/1.25 var(--font-display); }
+  .steps {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .steps li {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 6px;
+    padding: 18px 18px 16px;
+  }
+  .steps .n {
+    display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--carbon-soft); color: var(--carbon); font: 600 var(--t-sm)/1 var(--font-display);
+    margin-bottom: 10px;
+  }
+  .steps h3 { margin: 0 0 4px; font: 600 var(--t-md)/1.3 var(--font-display); }
+  .steps p { margin: 0; font-size: var(--t-sm); color: var(--muted); }
+  #search-form { scroll-margin-top: 16px; }
 
+  /* ── site footer ────────────────────────── */
+  .site-footer { background: var(--paper); border-top: 1px solid var(--line); margin-top: 8px; }
+  .site-footer .wrap { padding-top: 32px; padding-bottom: 24px; font-size: var(--t-sm); line-height: 1.6; color: var(--muted); }
+  .foot-cols { display: grid; grid-template-columns: 3fr 2fr; gap: 24px 48px; }
+  .foot-title { margin: 0 0 8px; font: 600 var(--t-md)/1.3 var(--font-display); color: var(--ink); }
+  .site-footer p { margin: 0 0 10px; max-width: 62ch; }
+  .site-footer p:last-child { margin-bottom: 0; }
+  .foot-bottom {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 24px;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line);
+  }
+  .foot-bottom a { font-weight: 500; }
+
+  @media (max-width: 720px) {
+    .steps { grid-template-columns: 1fr; gap: 12px; }
+    .foot-cols { grid-template-columns: 1fr; gap: 20px; }
+  }
   @media (max-width: 600px) {
+    .site-header .wrap { padding-bottom: 8px; }
+    .brand { padding-bottom: 4px; }
+    .nav { width: 100%; }
+    .nav-list { gap: 0; margin-left: -12px; }   /* optically align link text with the brand */
     .page { padding-top: 32px; }
     .masthead h1 { font-size: var(--t-xl); }
     .search-row { flex-direction: column; }
@@ -273,7 +346,30 @@
 </style>
 </head>
 <body>
-<main class="page">
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header" id="top">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="3.5" cy="9" r="1.5"/><circle cx="14.5" cy="9" r="1.5"/><path d="M5.5 9h7"/></svg>
+      </span>
+      <span class="brand-text">
+        <span class="brand-name">AWB Tracker</span>
+        <span class="brand-sub">Shree Tirupati Courier</span>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <ul class="nav-list">
+        <li><a href="#search-form">Track</a></li>
+        <li><a href="#help">How to use</a></li>
+        <li><a class="ext" href="https://www.shreetirupaticourier.net" target="_blank" rel="noopener noreferrer">Courier site</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="page" id="main">
   <header class="masthead">
     <h1>Consignment tracker</h1>
     <p>Check where a Shree Tirupati Courier shipment is. Enter the 12-digit AWB number from the booking receipt, or several numbers separated by commas.</p>
@@ -292,10 +388,47 @@
 
   <section class="results" id="results" aria-live="polite" aria-busy="false"></section>
 
-  <footer class="site-foot">
-    <p>Results come live from the public tracking on shreetirupaticourier.net, fetched through the local relay (<code>server.js</code>) running on this computer.</p>
-  </footer>
+  <section class="help" id="help" aria-labelledby="help-title">
+    <h2 id="help-title">How to use</h2>
+    <ol class="steps">
+      <li>
+        <span class="n" aria-hidden="true">1</span>
+        <h3>Enter the AWB number</h3>
+        <p>Use the 12-digit number on the booking receipt. To track several at once, separate them with commas (up to 25).</p>
+      </li>
+      <li>
+        <span class="n" aria-hidden="true">2</span>
+        <h3>Press Track</h3>
+        <p>Status, route and tracking history come live from the courier’s public tracking.</p>
+      </li>
+      <li>
+        <span class="n" aria-hidden="true">3</span>
+        <h3>Refresh or verify</h3>
+        <p>Use Refresh for the latest update, or Open on courier site to see the official page.</p>
+      </li>
+    </ol>
+  </section>
 </main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-cols">
+      <div>
+        <h2 class="foot-title">Tirupati Courier Services Pvt. Ltd.</h2>
+        <p>Follow your shipment from booking to delivery. Enter the 12-digit AWB number from your booking receipt to see its route, current status and full tracking history.</p>
+        <p>Details are shown as recorded in the courier’s tracking system. If a status looks out of date, use Refresh or check again a little later.</p>
+      </div>
+      <div>
+        <h2 class="foot-title">Need help?</h2>
+        <p>For any query about a shipment, contact the help desk number shown with your tracking result, or visit <a href="https://www.shreetirupaticourier.net" target="_blank" rel="noopener noreferrer">shreetirupaticourier.net</a>.</p>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; <span id="year">2026</span> Tirupati Courier Services Pvt. Ltd. All rights reserved.</span>
+      <a href="#top">Back to top</a>
+    </div>
+  </div>
+</footer>
 
 <script>
 (() => {
@@ -678,7 +811,16 @@
     if (e.target.closest('[data-action="refresh"]') && lastQuery.length) track(lastQuery, { push: false });
   });
 
-  window.addEventListener('popstate', () => startFromUrl(false));
+  // Clicking an in-page link (header nav, "Back to top") also fires popstate. Only react when the
+  // ?awb= query actually differs from what is on screen, so those links never re-run or clear a search.
+  window.addEventListener('popstate', () => {
+    let q = '';
+    try { q = new URL(location.href).searchParams.get('awb') || ''; } catch {}
+    const { valid, invalid } = parseInput(q);
+    const wanted = invalid.length || valid.length > MAX_AWBS ? [] : valid;
+    if (wanted.join(',') === lastQuery.join(',')) return;
+    startFromUrl(false);
+  });
 
   function startFromUrl(push) {
     let q = '';
@@ -692,6 +834,9 @@
       renderEmpty();
     }
   }
+
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   renderRecent();
   startFromUrl(false);
