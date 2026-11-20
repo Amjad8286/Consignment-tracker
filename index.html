@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consignment tracker</title>
+<!-- Where the local relay (server.js) listens. Used when this page is opened from disk, VS Code
+     Live Server or any other static server. server.js blanks it when it serves the page itself. -->
+<meta name="awb-relay" content="http://localhost:3000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #E8ECF1;
+    --paper: #FFFFFF;
+    --ink: #17202B;
+    --muted: #5A6472;
+    --line: #CBD2DB;
+    --carbon: #3342B8;
+    --carbon-soft: #E6E9FA;
+    --ok: #17804A;   --ok-soft: #E3F3EA;
+    --warn: #9A5A00; --warn-soft: #FBF0DC;
+    --bad: #B83232;  --bad-soft: #F9E4E4;
+    --none: #6A7483; --none-soft: #EEF0F3;
+
+    --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-display: "Barlow Semi Condensed", "Barlow", system-ui, sans-serif;
+
+    /* type scale (≈1.25) */
+    --t-xs: 0.8125rem;  /* 13 */
+    --t-sm: 0.875rem;   /* 14 */
+    --t-md: 1rem;       /* 16 */
+    --t-lg: 1.25rem;    /* 20 */
+    --t-xl: 1.75rem;    /* 28 */
+    --t-2xl: 2.5rem;    /* 40 */
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 var(--t-md)/1.5 var(--font-body);
+    font-variant-numeric: tabular-nums;
+  }
+  a { color: var(--carbon); text-underline-offset: 2px; }
+  :focus-visible { outline: 3px solid var(--carbon); outline-offset: 2px; border-radius: 4px; }
+  .visually-hidden {
+    position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  .page { max-width: 860px; margin: 0 auto; padding: 48px 20px 64px; }
+
+  /* ── header & search ─────────────────────────────── */
+  .masthead h1 {
+    font: 700 var(--t-2xl)/1.05 var(--font-display);
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+  }
+  .masthead p { margin: 0; color: var(--muted); max-width: 60ch; }
+
+  .search { margin-top: 28px; }
+  .search label { display: block; font-weight: 600; margin-bottom: 8px; }
+  .search-row { display: flex; gap: 10px; }
+  .search input {
+    flex: 1; min-width: 0;
+    font: 500 var(--t-lg)/1.2 var(--font-display);
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    padding: 14px 16px;
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+  }
+  .search input::placeholder { color: #98A1AE; letter-spacing: 0; }
+  .search input:focus-visible { outline: none; border-color: var(--carbon); box-shadow: 0 0 0 3px var(--carbon-soft); }
+  .search input[aria-invalid="true"] { border-color: var(--bad); }
+  .search input[aria-invalid="true"]:focus-visible { box-shadow: 0 0 0 3px var(--bad-soft); }
+
+  .btn {
+    font: 600 var(--t-md)/1 var(--font-body);
+    border-radius: 6px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--carbon); color: #fff; padding: 0 26px; min-height: 52px; }
+  .btn-primary:hover { background: #2A37A0; }
+  .btn-primary[disabled] { background: #8D96CF; cursor: progress; }
+  .btn-quiet {
+    background: transparent; color: var(--carbon);
+    padding: 7px 10px; font-size: var(--t-sm); border-color: transparent;
+  }
+  .btn-quiet:hover { background: var(--carbon-soft); }
+  .btn-outline { background: var(--paper); color: var(--ink); border-color: var(--line); padding: 10px 16px; font-size: var(--t-sm); }
+  .btn-outline:hover { border-color: var(--ink); }
+
+  .spinner {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.4); border-top-color: #fff;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .field-msg { min-height: 1.5em; margin: 8px 0 0; font-size: var(--t-sm); color: var(--muted); }
+  .field-msg.is-error { color: var(--bad); font-weight: 500; }
+
+  .recent { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: var(--t-sm); color: var(--muted); }
+  .recent[hidden] { display: none; }
+  .chip {
+    font: 500 var(--t-sm)/1 var(--font-display);
+    letter-spacing: 0.02em;
+    background: var(--paper); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 7px 12px; cursor: pointer;
+  }
+  .chip:hover { border-color: var(--carbon); color: var(--carbon); }
+
+  /* ── results ─────────────────────────────── */
+  .results { margin-top: 36px; }
+  .summary {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+    margin-bottom: 18px;
+  }
+  .summary p { margin: 0; font-weight: 500; }
+  .summary-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* The waybill slip: perforated top edge + a tear line under the stub. */
+  .slip {
+    position: relative;
+    background: var(--paper);
+    border-radius: 2px 2px 6px 6px;
+    padding: 26px 28px 24px;
+    margin-bottom: 22px;
+    box-shadow: 0 1px 0 var(--line), 0 6px 18px -12px rgba(23, 32, 43, .35);
+  }
+  .slip::before {
+    content: ""; position: absolute; left: 0; right: 0; top: -5px; height: 10px;
+    background: radial-gradient(circle at 7px 5px, var(--bg) 4.5px, transparent 5px) 0 0 / 14px 10px repeat-x;
+  }
+  .stub {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px;
+    padding-bottom: 18px;
+    border-bottom: 2px dashed var(--line);
+  }
+  .awb { margin: 0; font: 700 var(--t-xl)/1 var(--font-display); letter-spacing: 0.01em; }
+  .awb .grp + .grp { margin-left: 0.28em; }
+  .awb-caption { display: block; font: 500 var(--t-xs)/1.2 var(--font-body); color: var(--muted); margin-bottom: 6px; letter-spacing: 0; }
+  .stub-actions { margin-left: auto; display: flex; gap: 4px; flex-wrap: wrap; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    font: 600 var(--t-sm)/1 var(--font-body);
+    padding: 7px 12px 7px 10px; border-radius: 999px;
+    background: var(--none-soft); color: var(--none);
+  }
+  .badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .s-delivered .badge { background: var(--ok-soft); color: var(--ok); }
+  .s-out_for_delivery .badge, .s-in_progress .badge { background: var(--carbon-soft); color: var(--carbon); }
+  .s-returned .badge { background: var(--warn-soft); color: var(--warn); }
+  .s-exception .badge, .s-error .badge { background: var(--bad-soft); color: var(--bad); }
+
+  /* Route strip — the one bold element. */
+  .route { margin: 24px 0 6px; }
+  .track {
+    --pos: 50%;
+    --tone: var(--carbon);
+    position: relative; height: 22px; margin: 0 7px;
+  }
+  .track::before { /* full route, dashed = not travelled yet */
+    content: ""; position: absolute; left: 0; right: 0; top: 10px;
+    border-top: 2px dashed var(--line);
+  }
+  .track .done { /* travelled part */
+    position: absolute; left: 0; top: 9px; height: 4px; width: var(--pos);
+    background: var(--tone); border-radius: 2px;
+  }
+  .track .end {
+    position: absolute; top: 4px; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--paper); border: 3px solid var(--tone); transform: translateX(-50%);
+  }
+  .track .end.from { left: 0; background: var(--tone); }
+  .track .end.to { left: 100%; border-color: var(--line); }
+  .track .marker {
+    position: absolute; top: -1px; left: var(--pos); transform: translateX(-50%);
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--tone); box-shadow: 0 0 0 5px var(--paper);
+    display: grid; place-items: center; color: #fff;
+  }
+  .track .marker svg { width: 13px; height: 13px; }
+  .s-delivered .track { --pos: 100%; --tone: var(--ok); }
+  .s-delivered .track .end.to { border-color: var(--ok); background: var(--ok); }
+  .s-out_for_delivery .track { --pos: 80%; }
+  .s-returned .track { --pos: 18%; --tone: var(--warn); }
+  .s-exception .track { --tone: var(--bad); }
+  .s-unknown .track { --pos: 0%; --tone: var(--none); }
+
+  .places {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px;
+  }
+  .place h3 { margin: 0; font: 600 var(--t-lg)/1.2 var(--font-display); overflow-wrap: anywhere; }
+  .place p { margin: 3px 0 0; font-size: var(--t-sm); color: var(--muted); }
+  .place.to { text-align: right; }
+
+  .status-line {
+    margin: 22px 0 0; padding: 14px 16px;
+    background: var(--none-soft); border-left: 4px solid var(--none);
+    font-weight: 500;
+  }
+  .s-delivered .status-line { background: var(--ok-soft); border-color: var(--ok); }
+  .s-in_progress .status-line, .s-out_for_delivery .status-line { background: var(--carbon-soft); border-color: var(--carbon); }
+  .s-returned .status-line { background: var(--warn-soft); border-color: var(--warn); }
+  .s-exception .status-line { background: var(--bad-soft); border-color: var(--bad); }
+
+  .facts { display: grid; grid-template-columns: max-content 1fr; gap: 8px 24px; margin: 20px 0 0; }
+  .facts dt { color: var(--muted); font-size: var(--t-sm); padding-top: 1px; }
+  .facts dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+  .facts dd a { font-weight: 600; }
+  .facts dd .sep { color: var(--line); margin: 0 6px; }
+
+  .history { margin-top: 22px; }
+  .history h4 { margin: 0 0 8px; font: 600 var(--t-md)/1.3 var(--font-display); }
+  .history-scroll { overflow-x: auto; }
+  .history table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+  .history th, .history td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .history th { color: var(--muted); font-weight: 600; }
+
+  .slip-note { margin: 18px 0 0; color: var(--muted); max-width: 60ch; }
+  .slip-note strong { color: var(--ink); }
+
+  /* states */
+  .panel {
+    background: var(--paper); border-radius: 6px; padding: 28px;
+    border: 1.5px solid var(--line);
+  }
+  .panel h2 { margin: 0 0 6px; font: 600 var(--t-lg)/1.25 var(--font-display); }
+  .panel p { margin: 0 0 16px; color: var(--muted); max-width: 62ch; }
+  .panel p:last-child { margin-bottom: 0; }
+  .panel.is-error { border-color: var(--bad); }
+  .panel.is-error h2 { color: var(--bad); }
+  .panel code { background: var(--none-soft); padding: 2px 6px; border-radius: 4px; font-size: .95em; color: var(--ink); white-space: nowrap; }
+  .empty-sample { font: 600 var(--t-lg)/1 var(--font-display); color: var(--ink); letter-spacing: .02em; }
+
+  .skeleton .bar {
+    background: linear-gradient(90deg, #EDF0F4 0%, #F6F8FA 50%, #EDF0F4 100%) 0 0 / 200% 100%;
+    border-radius: 4px; height: 14px;
+    animation: shimmer 1.2s ease-in-out infinite;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  .site-foot { margin-top: 40px; font-size: var(--t-sm); color: var(--muted); }
+  .site-foot p { margin: 0; max-width: 70ch; }
+
+  @media (max-width: 600px) {
+    .page { padding-top: 32px; }
+    .masthead h1 { font-size: var(--t-xl); }
+    .search-row { flex-direction: column; }
+    .btn-primary { width: 100%; }
+    .slip { padding: 22px 18px 20px; }
+    .stub-actions { margin-left: -10px; width: 100%; }
+    .places { grid-template-columns: 1fr; gap: 10px; }
+    .place.to { text-align: left; }
+    .facts { grid-template-columns: 1fr; gap: 2px; }
+    .facts dd { margin-bottom: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spinner, .skeleton .bar { animation: none; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="masthead">
+    <h1>Consignment tracker</h1>
+    <p>Check where a Shree Tirupati Courier shipment is. Enter the 12-digit AWB number from the booking receipt, or several numbers separated by commas.</p>
+  </header>
+
+  <form class="search" id="search-form" novalidate>
+    <label for="awb-input">AWB number</label>
+    <div class="search-row">
+      <input id="awb-input" name="awb" type="text" autocomplete="off" spellcheck="false"
+             placeholder="e.g. 171100087119" aria-describedby="awb-msg">
+      <button class="btn btn-primary" id="track-btn" type="submit">Track</button>
+    </div>
+    <p class="field-msg" id="awb-msg" aria-live="polite">Up to 25 numbers at a time.</p>
+    <div class="recent" id="recent" hidden></div>
+  </form>
+
+  <section class="results" id="results" aria-live="polite" aria-busy="false"></section>
+
+  <footer class="site-foot">
+    <p>Results come live from the public tracking on shreetirupaticourier.net, fetched through the local relay (<code>server.js</code>) running on this computer.</p>
+  </footer>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  // Relay address from <meta name="awb-relay">: "" when server.js served this page (same origin),
+  // otherwise e.g. http://localhost:3000 for file://, Live Server (:5500) or any other static host.
+  const RELAY_META = document.querySelector('meta[name="awb-relay"]');
+  const API_BASE = (RELAY_META ? RELAY_META.content : 'http://localhost:3000').trim().replace(/\/+$/, '');
+  const RELAY_LABEL = API_BASE || location.origin;
+  const CLIENT_TIMEOUT_MS = 60000;
+  const MAX_AWBS = 25;
+  const RECENT_KEY = 'awbTracker.recent';
+
+  const form = document.getElementById('search-form');
+  const input = document.getElementById('awb-input');
+  const button = document.getElementById('track-btn');
+  const msg = document.getElementById('awb-msg');
+  const resultsEl = document.getElementById('results');
+  const recentEl = document.getElementById('recent');
+  const DEFAULT_HINT = msg.textContent;
+
+  let inflight = null;
+  let lastQuery = [];
+
+  // ── helpers ───────────────────────────────────────────
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  /** "16-11-26 - 08:10 PM" → "16 Nov 2026, 08:10 PM"; anything unexpected is returned as-is. */
+  function formatDate(raw) {
+    const m = String(raw || '').trim().match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2}|\d{4})(?:\s*-?\s*(.+))?$/);
+    if (!m) return String(raw || '').trim();
+    const month = MONTHS[Number(m[2]) - 1];
+    if (!month) return raw;
+    const year = m[3].length === 2 ? '20' + m[3] : m[3];
+    return `${Number(m[1])} ${month} ${year}${m[4] ? ', ' + m[4].trim() : ''}`;
+  }
+
+  function parseInput(raw) {
+    const tokens = String(raw).split(/[\s,;]+/).map((t) => t.trim()).filter(Boolean);
+    const unique = [...new Set(tokens)];
+    return { valid: unique.filter((t) => /^\d{12}$/.test(t)), invalid: unique.filter((t) => !/^\d{12}$/.test(t)) };
+  }
+
+  function validate(raw, { strict }) {
+    const { valid, invalid } = parseInput(raw);
+    if (!valid.length && !invalid.length) {
+      return strict ? { ok: false, message: 'Enter an AWB number to track.' } : { ok: true, message: DEFAULT_HINT, neutral: true };
+    }
+    if (invalid.length) {
+      const sample = invalid.slice(0, 3).map((t) => `“${t}”`).join(', ') + (invalid.length > 3 ? ` and ${invalid.length - 3} more` : '');
+      return { ok: false, message: `AWB numbers have exactly 12 digits. Check ${sample}.` };
+    }
+    if (valid.length > MAX_AWBS) return { ok: false, message: `Track up to ${MAX_AWBS} numbers at a time. You entered ${valid.length}.` };
+    return { ok: true, valid, message: valid.length === 1 ? 'Ready to track 1 number.' : `Ready to track ${valid.length} numbers.` };
+  }
+
+  function showFieldMessage(result) {
+    msg.textContent = result.message;
+    msg.classList.toggle('is-error', !result.ok);
+    input.setAttribute('aria-invalid', String(!result.ok));
+  }
+
+  // ── recent searches (per browser, best effort) ─────────
+  function loadRecent() {
+    try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]').filter((x) => typeof x === 'string'); }
+    catch { return []; }
+  }
+  function saveRecent(query) {
+    try {
+      const key = query.join(', ');
+      const list = [key, ...loadRecent().filter((x) => x !== key)].slice(0, 6);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+    } catch { /* storage unavailable — ignore */ }
+    renderRecent();
+  }
+  function renderRecent() {
+    const list = loadRecent();
+    recentEl.hidden = list.length === 0;
+    recentEl.innerHTML = list.length
+      ? '<span>Recent:</span>' + list.map((q) => `<button type="button" class="chip" data-q="${esc(q)}">${esc(q.length > 32 ? q.slice(0, 30) + '…' : q)}</button>`).join('')
+      : '';
+  }
+
+  // ── URL sync so results can be bookmarked / reloaded ───
+  function setUrl(query, push) {
+    try {
+      const url = new URL(location.href);
+      if (query.length) url.searchParams.set('awb', query.join(',')); else url.searchParams.delete('awb');
+      history[push ? 'pushState' : 'replaceState']({ awb: query }, '', url);
+    } catch { /* file:// in some browsers — ignore */ }
+  }
+
+  // ── rendering ─────────────────────────────────────────
+  const STATUS_LABEL = {
+    delivered: 'Delivered',
+    out_for_delivery: 'Out for delivery',
+    in_progress: 'In transit',
+    returned: 'Returned',
+    exception: 'Delivery issue',
+    unknown: 'Status not updated',
+  };
+  const ICON = {
+    delivered: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>',
+    returned: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4L2.5 7.5 6 11"/><path d="M3 7.5h7a3.5 3.5 0 0 1 0 7H8"/></svg>',
+    exception: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M8 3.5v5.5"/><path d="M8 12.5v.01"/></svg>',
+    default: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h9"/><path d="M9 4.5L12.5 8 9 11.5"/></svg>',
+  };
+
+  const groupAwb = (awb) => {
+    const s = String(awb);
+    return /^\d{12}$/.test(s)
+      ? [s.slice(0, 4), s.slice(4, 8), s.slice(8)].map((g) => `<span class="grp">${g}</span>`).join('')
+      : esc(s);
+  };
+
+  function stubHtml(r, badge) {
+    const official = r.detailUrl
+      ? `<a class="btn btn-quiet" href="${esc(r.detailUrl)}" target="_blank" rel="noopener noreferrer">Open on courier site</a>`
+      : '';
+    return `
+      <div class="stub">
+        <div>
+          <span class="awb-caption">AWB number</span>
+          <h2 class="awb" aria-label="AWB ${esc(r.awb)}">${groupAwb(r.awb)}</h2>
+        </div>
+        <span class="badge">${esc(badge)}</span>
+        <div class="stub-actions">
+          <button type="button" class="btn btn-quiet" data-copy="${esc(r.awb)}">Copy number</button>
+          ${official}
+        </div>
+      </div>`;
+  }
+
+  function slipHtml(r) {
+    if (r.reason === 'error') {
+      return `<article class="slip s-error">${stubHtml(r, 'Couldn’t load')}
+        <p class="slip-note">The courier website didn’t return details for this number (${esc(String(r.error || 'unknown error').replace(/\.+$/, ''))}). Use <strong>Refresh</strong> to try again.</p></article>`;
+    }
+    if (!r.found) {
+      return `<article class="slip s-notfound">${stubHtml(r, 'Not found')}
+        <p class="slip-note">There is no booking for this AWB number on the courier’s tracking. Check the number against the booking receipt and try again.</p></article>`;
+    }
+
+    const code = STATUS_LABEL[r.status.code] ? r.status.code : 'unknown';
+    const b = r.booking;
+    const delivered = code === 'delivered';
+    const toLine = delivered && r.status.date ? `Delivered ${esc(formatDate(r.status.date))}` : 'Destination';
+    const icon = ICON[code] || ICON.default;
+
+    const phones = (r.contact && r.contact.phones) || [];
+    const helpDesk = phones.length
+      ? phones.map((p) => `<a href="tel:${esc(p.replace(/[^\d+]/g, ''))}">${esc(p)}</a>`).join('<span class="sep">/</span>')
+      : (r.contact && r.contact.text ? esc(r.contact.text) : '');
+
+    const facts = [
+      ['Consignee', b.consignee],
+    ].filter(([, v]) => v).map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')
+      + (helpDesk ? `<dt>Help desk</dt><dd>${helpDesk}</dd>` : '');
+
+    const h = r.history || { rows: [] };
+    const history = h.rows && h.rows.length ? `
+      <div class="history">
+        <h4>Tracking history</h4>
+        <div class="history-scroll"><table>
+          ${h.headers ? `<thead><tr>${h.headers.map((x) => `<th scope="col">${esc(x)}</th>`).join('')}</tr></thead>` : ''}
+          <tbody>${h.rows.map((row) => `<tr>${row.map((c) => `<td>${esc(c).replace(/\n/g, '<br>')}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table></div>
+      </div>` : '';
+
+    // The courier has a scan for this number but no booking behind it: show what it reports,
+    // without a route strip whose ends would be blank.
+    if (r.hasBooking === false) {
+      return `
+      <article class="slip s-${code}">
+        ${stubHtml(r, STATUS_LABEL[code])}
+        ${r.status.text ? `<p class="status-line">${esc(r.status.text)}</p>` : ''}
+        <p class="slip-note"><strong>No booking details on record.</strong> The courier’s tracking shows the update above for this number, but no origin, destination or booking date. If you expected a booking, check the number against your receipt.</p>
+        ${facts ? `<dl class="facts">${facts}</dl>` : ''}
+        ${history}
+      </article>`;
+    }
+
+    return `
+      <article class="slip s-${code}">
+        ${stubHtml(r, STATUS_LABEL[code])}
+        <div class="route">
+          <div class="track" role="img" aria-label="From ${esc(b.fromCenter || 'origin')} to ${esc(b.toCenter || 'destination')}: ${esc(STATUS_LABEL[code])}">
+            <span class="done"></span>
+            <span class="end from"></span>
+            <span class="end to"></span>
+            ${code === 'unknown' ? '' : `<span class="marker">${icon}</span>`}
+          </div>
+          <div class="places">
+            <div class="place from"><h3>${esc(b.fromCenter || '—')}</h3><p>${b.bookedAt ? 'Booked ' + esc(formatDate(b.bookedAt)) : 'Origin'}</p></div>
+            <div class="place to"><h3>${esc(b.toCenter || '—')}</h3><p>${toLine}</p></div>
+          </div>
+        </div>
+        ${r.status.text ? `<p class="status-line">${esc(r.status.text)}</p>` : ''}
+        ${facts ? `<dl class="facts">${facts}</dl>` : ''}
+        ${history}
+      </article>`;
+  }
+
+  function summaryHtml(data) {
+    const counts = {};
+    for (const r of data.results) {
+      const k = r.reason === 'error' ? 'couldn’t load'
+        : !r.found ? 'not found'
+        : r.hasBooking === false ? 'without booking details'
+        : (STATUS_LABEL[r.status.code] || 'other').toLowerCase();
+      counts[k] = (counts[k] || 0) + 1;
+    }
+    const parts = Object.entries(counts).map(([k, n]) => `${n} ${k}`).join(', ');
+    const time = new Date(data.fetchedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const head = data.results.length === 1 ? `Updated ${time}` : `${plural(data.results.length, 'number', 'numbers')}: ${parts}. Updated ${time}.`;
+    return `
+      <div class="summary">
+        <p>${esc(head)}</p>
+        <div class="summary-actions">
+          <button type="button" class="btn btn-outline" data-action="refresh">Refresh</button>
+          ${data.results.length > 1 && data.officialUrl ? `<a class="btn btn-outline" href="${esc(data.officialUrl)}" target="_blank" rel="noopener noreferrer">Open all on courier site</a>` : ''}
+        </div>
+      </div>`;
+  }
+
+  function renderResults(data) {
+    resultsEl.innerHTML = summaryHtml(data) + data.results.map(slipHtml).join('');
+  }
+
+  function renderLoading(count) {
+    const one = `
+      <div class="slip skeleton" aria-hidden="true">
+        <div class="stub"><div style="width:100%"><div class="bar" style="width:90px;height:10px;margin-bottom:10px"></div><div class="bar" style="width:220px;height:26px"></div></div></div>
+        <div class="bar" style="height:6px;margin:30px 0 16px"></div>
+        <div style="display:flex;justify-content:space-between;gap:20px"><div class="bar" style="width:40%;height:18px"></div><div class="bar" style="width:25%;height:18px"></div></div>
+        <div class="bar" style="height:46px;margin-top:22px"></div>
+      </div>`;
+    resultsEl.innerHTML = `<p class="visually-hidden">Tracking ${plural(count, 'AWB number', 'AWB numbers')}…</p>` + one.repeat(Math.min(count, 3));
+  }
+
+  function renderEmpty() {
+    resultsEl.innerHTML = `
+      <div class="panel">
+        <h2>Enter an AWB number to see its status</h2>
+        <p>The AWB number is the 12-digit number printed on the booking receipt, for example <span class="empty-sample">171100087119</span>. To track several at once, separate them with commas.</p>
+      </div>`;
+  }
+
+  function renderError(title, body, retry = true) {
+    resultsEl.innerHTML = `
+      <div class="panel is-error" role="alert">
+        <h2>${esc(title)}</h2>
+        <p>${body}</p>
+        ${retry ? '<p><button type="button" class="btn btn-outline" data-action="refresh">Try again</button></p>' : ''}
+      </div>`;
+  }
+
+  function setBusy(busy) {
+    resultsEl.setAttribute('aria-busy', String(busy));
+    button.disabled = busy;
+    button.innerHTML = busy ? '<span class="spinner" aria-hidden="true"></span>Tracking…' : 'Track';
+  }
+
+  // ── API call ──────────────────────────────────────────
+  async function track(query, { push = true } = {}) {
+    if (inflight) inflight.abort();
+    const controller = new AbortController();
+    inflight = controller;
+    const timer = setTimeout(() => controller.abort('timeout'), CLIENT_TIMEOUT_MS);
+
+    lastQuery = query;
+    setUrl(query, push);
+    setBusy(true);
+    renderLoading(query.length);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/track?awb=${encodeURIComponent(query.join(','))}`, {
+        signal: controller.signal,
+        headers: { Accept: 'application/json' },
+      });
+      let data = null;
+      try { data = await res.json(); } catch { /* non-JSON */ }
+
+      if (!data) {
+        // Something other than the relay answered (e.g. a static server's 404 page).
+        renderError(
+          'The tracking relay didn’t answer',
+          `<code>${esc(RELAY_LABEL)}/api/track</code> returned HTTP ${res.status} without tracking data, so it isn’t the relay. Start it with <code>node server.js</code> in the project folder. If it runs on another port, set that address in the <code>awb-relay</code> meta tag at the top of <code>index.html</code>.`
+        );
+        return;
+      }
+      if (!res.ok || !data.ok) {
+        const message = (data.error && data.error.message) || `The relay answered with HTTP ${res.status}.`;
+        const code = data.error && data.error.code;
+        if (code === 'INVALID_AWB' || code === 'TOO_MANY' || code === 'EMPTY') {
+          showFieldMessage({ ok: false, message });
+          resultsEl.innerHTML = '';
+          return;
+        }
+        const title = res.status === 504 ? 'The courier website is slow to respond' : 'Tracking is unavailable right now';
+        renderError(title, esc(message));
+        return;
+      }
+
+      saveRecent(query);
+      renderResults(data);
+    } catch (err) {
+      if (controller.signal.aborted && controller.signal.reason !== 'timeout') return; // replaced by a newer search
+      if (controller.signal.reason === 'timeout') {
+        renderError('The search took too long', 'The courier website didn’t answer within a minute. Try again in a moment.');
+      } else {
+        renderError(
+          'The local relay isn’t running',
+          `This page gets its data through <code>server.js</code> on this computer, expected at <code>${esc(RELAY_LABEL)}</code>. Start it with <code>node server.js</code> in the project folder, then press <strong>Try again</strong>. If it runs on another port, set that address in the <code>awb-relay</code> meta tag at the top of <code>index.html</code>.`
+        );
+      }
+    } finally {
+      clearTimeout(timer);
+      if (inflight === controller) { inflight = null; setBusy(false); }
+    }
+  }
+
+  // ── events ────────────────────────────────────────────
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const result = validate(input.value, { strict: true });
+    showFieldMessage(result);
+    if (!result.ok) { input.focus(); return; }
+    input.value = result.valid.join(', ');
+    track(result.valid);
+  });
+
+  input.addEventListener('input', () => {
+    const result = validate(input.value, { strict: false });
+    // Don't nag mid-typing: only flag errors once a separator or 12+ characters are present.
+    const settled = /[\s,;]/.test(input.value) || input.value.replace(/\s/g, '').length >= 12;
+    showFieldMessage(result.ok || settled ? result : { ok: true, message: DEFAULT_HINT });
+  });
+
+  // Text inputs drop line breaks on paste, which would glue numbers together.
+  input.addEventListener('paste', (e) => {
+    const text = (e.clipboardData || window.clipboardData)?.getData('text');
+    if (!text || !/[\r\n\t]/.test(text)) return;
+    e.preventDefault();
+    const cleaned = text.split(/[\r\n\t]+/).map((s) => s.trim()).filter(Boolean).join(', ');
+    const { selectionStart: s, selectionEnd: en, value } = input;
+    input.value = value.slice(0, s) + cleaned + value.slice(en);
+    input.dispatchEvent(new Event('input'));
+  });
+
+  recentEl.addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-q]');
+    if (!chip) return;
+    input.value = chip.dataset.q;
+    form.requestSubmit();
+  });
+
+  resultsEl.addEventListener('click', async (e) => {
+    const copyBtn = e.target.closest('[data-copy]');
+    if (copyBtn) {
+      const value = copyBtn.dataset.copy;
+      try {
+        // writeText can stay pending while a permission prompt is open, so cap the wait.
+        await Promise.race([
+          navigator.clipboard.writeText(value),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('clipboard timeout')), 1000)),
+        ]);
+      } catch {
+        const ta = Object.assign(document.createElement('textarea'), { value });
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } finally { ta.remove(); }
+      }
+      copyBtn.textContent = 'Copied';
+      setTimeout(() => { copyBtn.textContent = 'Copy number'; }, 1500);
+      return;
+    }
+    if (e.target.closest('[data-action="refresh"]') && lastQuery.length) track(lastQuery, { push: false });
+  });
+
+  window.addEventListener('popstate', () => startFromUrl(false));
+
+  function startFromUrl(push) {
+    let q = '';
+    try { q = new URL(location.href).searchParams.get('awb') || ''; } catch {}
+    const result = validate(q, { strict: false });
+    if (q && result.ok && result.valid) {
+      input.value = result.valid.join(', ');
+      showFieldMessage(result);
+      track(result.valid, { push });
+    } else {
+      renderEmpty();
+    }
+  }
+
+  renderRecent();
+  startFromUrl(false);
+})();
+</script>
+</body>
+</html>
