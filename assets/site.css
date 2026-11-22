@@ -1,0 +1,304 @@
+/* AWB Tracker: styles shared by every page (tracker, About, Contact and the legal pages).
+   Styles used only by the tracker (search box, result slips, route strip) stay inline in index.html. */
+
+:root {
+  --bg: #E8ECF1;
+  --paper: #FFFFFF;
+  --ink: #17202B;
+  --muted: #5A6472;
+  --line: #CBD2DB;
+  --carbon: #3342B8;
+  --carbon-soft: #E6E9FA;
+  --ok: #17804A;   --ok-soft: #E3F3EA;
+  --warn: #9A5A00; --warn-soft: #FBF0DC;
+  --bad: #B83232;  --bad-soft: #F9E4E4;
+  --none: #6A7483; --none-soft: #EEF0F3;
+  --control-line: #838D9B;   /* form control borders: 3.4:1 on white (WCAG 1.4.11 asks for 3:1); --line is for dividers */
+
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Barlow Semi Condensed", "Barlow", system-ui, sans-serif;
+
+  /* type scale (≈1.25) */
+  --t-xs: 0.8125rem;  /* 13 */
+  --t-sm: 0.875rem;   /* 14 */
+  --t-md: 1rem;       /* 16 */
+  --t-lg: 1.25rem;    /* 20 */
+  --t-xl: 1.75rem;    /* 28 */
+  --t-2xl: 2.5rem;    /* 40 */
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex; flex-direction: column;   /* keeps the footer at the bottom on short pages */
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 var(--t-md)/1.5 var(--font-body);
+  font-variant-numeric: tabular-nums;
+}
+main { flex: 1 0 auto; }
+a { color: var(--carbon); text-underline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--carbon); outline-offset: 2px; border-radius: 4px; }
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.page { width: 100%; max-width: 860px; margin: 0 auto; padding: 48px 20px 64px; }   /* width: body is a column flexbox, where auto margins would shrink-wrap short pages */
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }   /* same width as .page, for header/footer */
+
+.skip-link {
+  position: absolute; left: 12px; top: -48px; z-index: 10;
+  background: var(--carbon); color: #fff; padding: 10px 14px; border-radius: 6px;
+  font-weight: 600; text-decoration: none;
+}
+.skip-link:focus { top: 12px; }
+
+/* ── site header & navigation ─────────────────────── */
+.site-header { background: var(--paper); border-bottom: 1px solid var(--line); }
+.site-header .wrap {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 6px 24px; min-height: 64px;
+}
+.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; padding: 12px 0; }
+.brand-mark {
+  width: 32px; height: 32px; border-radius: 8px; flex: none;
+  background: var(--carbon); color: #fff; display: grid; place-items: center;
+}
+.brand-mark svg { width: 18px; height: 18px; }
+.brand-name { font: 700 var(--t-lg)/1 var(--font-display); letter-spacing: 0.01em; }
+.brand-sub { font-size: var(--t-xs); color: var(--muted); line-height: 1.2; }
+.brand-text { display: flex; flex-direction: column; gap: 3px; }
+
+.nav-list { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.nav-list a {
+  display: block; padding: 8px 12px; border-radius: 6px;
+  color: var(--ink); font-weight: 500; font-size: var(--t-sm); text-decoration: none;
+}
+.nav-list a:hover { background: var(--carbon-soft); color: var(--carbon); }
+.nav-list a[aria-current="page"] { background: var(--carbon-soft); color: var(--carbon); }   /* the page you are on */
+.nav-list .ext::after { content: " \2197"; color: var(--muted); }
+
+/* ── page heading ─────────────────────────────── */
+.masthead h1 {
+  font: 700 var(--t-2xl)/1.05 var(--font-display);
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+}
+.masthead p { margin: 0; color: var(--muted); max-width: 60ch; }
+.masthead .meta { margin-top: 12px; font-size: var(--t-sm); }   /* "Last updated" line on legal pages */
+
+/* ── buttons ─────────────────────────────── */
+.btn {
+  font: 600 var(--t-md)/1 var(--font-body);
+  border-radius: 6px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  text-decoration: none;
+}
+.btn-primary { background: var(--carbon); color: #fff; padding: 0 26px; min-height: 52px; }
+.btn-primary:hover { background: #2A37A0; }
+.btn-primary[disabled] { background: #8D96CF; cursor: progress; }
+.btn-quiet {
+  background: transparent; color: var(--carbon);
+  padding: 7px 10px; font-size: var(--t-sm); border-color: transparent;
+}
+.btn-quiet:hover { background: var(--carbon-soft); }
+.btn-outline { background: var(--paper); color: var(--ink); border-color: var(--line); padding: 10px 16px; font-size: var(--t-sm); }
+.btn-outline:hover { border-color: var(--ink); }
+.btn-lg { min-height: 52px; padding: 0 26px; font-size: var(--t-md); }   /* outline button next to a primary one */
+
+.spinner {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.4); border-top-color: #fff;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── panels, key/value facts and numbered steps ─────────────────── */
+.panel {
+  background: var(--paper); border-radius: 6px; padding: 28px;
+  border: 1.5px solid var(--line);
+}
+.panel h2 { margin: 0 0 6px; font: 600 var(--t-lg)/1.25 var(--font-display); }
+.panel p { margin: 0 0 16px; color: var(--muted); max-width: 62ch; }
+.panel p:last-child { margin-bottom: 0; }
+.panel.is-error { border-color: var(--bad); }
+.panel.is-error h2 { color: var(--bad); }
+.panel code { background: var(--none-soft); padding: 2px 6px; border-radius: 4px; font-size: .95em; color: var(--ink); white-space: nowrap; }
+
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 8px 24px; margin: 20px 0 0; }
+.facts dt { color: var(--muted); font-size: var(--t-sm); padding-top: 1px; }
+.facts dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+.facts dd a { font-weight: 600; }
+.facts dd .sep { color: var(--line); margin: 0 6px; }
+
+.steps {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.steps li {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 6px;
+  padding: 18px 18px 16px;
+}
+.steps .n {
+  display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--carbon-soft); color: var(--carbon); font: 600 var(--t-sm)/1 var(--font-display);
+  margin-bottom: 10px;
+}
+.steps h3 { margin: 0 0 4px; font: 600 var(--t-md)/1.3 var(--font-display); }
+.steps p { margin: 0; font-size: var(--t-sm); color: var(--muted); }
+
+/* ── content pages: sections, prose, callouts ─────────────────────── */
+.section { margin-top: 48px; scroll-margin-top: 16px; }
+.section > h2 { margin: 0 0 14px; font: 600 var(--t-lg)/1.25 var(--font-display); }
+
+.prose { font-variant-numeric: normal; line-height: 1.6; }   /* running text reads better with proportional figures */
+.prose p, .prose ul, .prose ol { margin: 0 0 14px; max-width: 68ch; }
+.prose ul, .prose ol { padding-left: 1.3em; }
+.prose li { margin-bottom: 6px; }
+.prose li::marker { color: var(--muted); }
+.prose h3 { margin: 22px 0 6px; font: 600 var(--t-md)/1.3 var(--font-display); }
+.prose strong { font-weight: 600; }
+.prose > :last-child { margin-bottom: 0; }
+.steps + .prose { margin-top: 20px; }
+
+.callout {
+  margin: 0 0 24px; padding: 14px 16px;
+  background: var(--carbon-soft); border-left: 4px solid var(--carbon);
+}
+.callout p { margin: 0; max-width: 68ch; color: var(--ink); }   /* colour: also when inside a .panel, whose `p` is grey */
+.callout p + p { margin-top: 8px; }
+.callout strong { font-weight: 600; }
+.callout.is-bad { background: var(--bad-soft); border-color: var(--bad); }
+.callout[hidden] { display: none; }
+.masthead + .callout { margin-top: 28px; }
+
+/* About: feature cards and the closing call to action */
+.features { list-style: none; margin: 20px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.features li { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 18px 18px 16px; }
+.features .ico {
+  display: grid; place-items: center; width: 36px; height: 36px; border-radius: 8px; margin-bottom: 12px;
+  background: var(--carbon-soft); color: var(--carbon);
+}
+.features .ico svg {
+  width: 20px; height: 20px;
+  fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+}
+.features h3 { margin: 0 0 4px; font: 600 var(--t-md)/1.3 var(--font-display); }
+.features p { margin: 0; font-size: var(--t-sm); color: var(--muted); }
+
+.cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; margin-top: 48px; }
+.cta-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ── legal pages: contents list and the document itself ───────────────── */
+.toc { margin-top: 28px; padding: 20px 24px; background: var(--paper); border: 1.5px solid var(--line); border-radius: 6px; }
+.toc-title { margin: 0 0 10px; font: 600 var(--t-md)/1.3 var(--font-display); }
+.toc ol { margin: 0; padding-left: 1.5em; columns: 2; column-gap: 32px; font-size: var(--t-sm); }
+.toc li { padding: 3px 0; break-inside: avoid; }
+.toc li::marker { color: var(--muted); }
+
+/* Same perforated top edge as the result slip (.slip in index.html). */
+.doc {
+  position: relative; margin-top: 28px; padding: 32px 36px 36px;
+  background: var(--paper); border-radius: 2px 2px 6px 6px;
+  box-shadow: 0 1px 0 var(--line), 0 6px 18px -12px rgba(23, 32, 43, .35);
+  counter-reset: sec;
+}
+.doc::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -5px; height: 10px;
+  background: radial-gradient(circle at 7px 5px, var(--bg) 4.5px, transparent 5px) 0 0 / 14px 10px repeat-x;
+}
+.doc > section + section { margin-top: 28px; padding-top: 28px; border-top: 2px dashed var(--line); }
+.doc h2 { margin: 0 0 10px; font: 600 var(--t-lg)/1.25 var(--font-display); scroll-margin-top: 16px; }
+.doc h2::before { counter-increment: sec; content: counter(sec) "."; margin-right: 0.45em; color: var(--carbon); }
+.doc .facts { margin-top: 12px; }
+.doc > section:last-child > :last-child { margin-bottom: 0; }
+
+/* Contact: the form beside the contact details */
+.contact-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 24px; align-items: start; margin-top: 28px; }
+
+/* ── forms ─────────────────────────────── */
+.field { margin: 0 0 20px; }
+.field > label { display: block; margin-bottom: 6px; font-weight: 600; }
+.field .opt { font-weight: 400; color: var(--muted); }
+.control {
+  display: block; width: 100%; min-width: 0;
+  font: 400 var(--t-md)/1.4 var(--font-body);
+  color: var(--ink);
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1.5px solid var(--control-line);
+  border-radius: 6px;
+}
+.control:focus-visible { outline: none; border-color: var(--carbon); box-shadow: 0 0 0 3px var(--carbon-soft); }
+.control[aria-invalid="true"] { border-color: var(--bad); }
+.control[aria-invalid="true"]:focus-visible { box-shadow: 0 0 0 3px var(--bad-soft); }
+textarea.control { min-height: 150px; resize: vertical; }
+select.control {
+  appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 42px;
+  background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%235A6472' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 15px center / 12px 8px;
+}
+.field-foot { display: flex; justify-content: space-between; align-items: flex-start; gap: 4px 16px; }
+/* ".field ." (not just "."): inside a .panel, `.panel p` would otherwise win on colour and margin. */
+.field .hint { margin: 6px 0 0; font-size: var(--t-sm); color: var(--muted); }
+.count { margin-top: 6px; font-size: var(--t-sm); color: var(--muted); white-space: nowrap; }
+.field .field-error { margin: 6px 0 0; font-size: var(--t-sm); font-weight: 500; color: var(--bad); }
+.field .field-error[hidden] { display: none; }
+.check { display: flex; align-items: flex-start; gap: 12px; }
+.check input { flex: none; width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--carbon); }
+.check input[aria-invalid="true"] { outline: 2px solid var(--bad); outline-offset: 2px; }
+.check label { margin: 0; font-weight: 400; }
+.form-actions { margin-top: 24px; }
+
+/* ── site footer ────────────────────────── */
+.site-footer { background: var(--paper); border-top: 1px solid var(--line); margin-top: 8px; }
+.site-footer .wrap { padding-top: 32px; padding-bottom: 24px; font-size: var(--t-sm); line-height: 1.6; color: var(--muted); }
+.foot-cols { display: grid; grid-template-columns: 3fr 2fr; gap: 24px 48px; }
+.foot-title { margin: 0 0 8px; font: 600 var(--t-md)/1.3 var(--font-display); color: var(--ink); }
+.site-footer p { margin: 0 0 10px; max-width: 62ch; }
+.site-footer p:last-child { margin-bottom: 0; }
+.foot-nav { margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--line); }
+.foot-links { display: flex; flex-wrap: wrap; gap: 0 24px; list-style: none; margin: 0; padding: 0; }
+.foot-links a { display: inline-block; padding: 5px 0; color: var(--ink); font-weight: 500; text-decoration: none; }
+.foot-links a:hover { color: var(--carbon); text-decoration: underline; }
+.foot-links a[aria-current="page"] { color: var(--carbon); }
+.foot-bottom {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 24px;
+  margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line);
+}
+.foot-nav + .foot-bottom { margin-top: 12px; }
+.foot-bottom a { font-weight: 500; }
+
+@media (max-width: 720px) {
+  .steps { grid-template-columns: 1fr; gap: 12px; }
+  .features { grid-template-columns: 1fr; gap: 12px; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .toc ol { columns: 1; }
+  .foot-cols { grid-template-columns: 1fr; gap: 20px; }
+}
+/* The header's links no longer fit beside the brand: put them on their own row. */
+@media (max-width: 680px) {
+  .site-header .wrap { padding-bottom: 8px; }
+  .brand { padding-bottom: 4px; }
+  .nav { width: 100%; }
+  .nav-list { flex-wrap: wrap; gap: 0; margin-left: -12px; }   /* optically align link text with the brand */
+}
+@media (max-width: 600px) {
+  .page { padding-top: 32px; }
+  .masthead h1 { font-size: var(--t-xl); }
+  .contact-grid .panel { padding: 22px 18px; }
+  .doc { padding: 26px 20px 28px; }
+  .facts { grid-template-columns: 1fr; gap: 2px; }
+  .facts dd { margin-bottom: 10px; }
+  .cta-actions { width: 100%; }
+  .cta-actions .btn { flex: 1 1 100%; }
+  .form-actions .btn { width: 100%; }   /* same as the Track button on the home page */
+  .foot-links { gap: 0 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; }
+}

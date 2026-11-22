@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact Us – AWB Tracker | Support &amp; Feedback</title>
+<meta name="description" content="Questions, feedback or a problem with AWB Tracker? Send us a message. For help with a parcel itself, contact the courier’s help desk.">
+<link rel="canonical" href="https://tirupaticourier.in/contact.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header" id="top">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="3.5" cy="9" r="1.5"/><circle cx="14.5" cy="9" r="1.5"/><path d="M5.5 9h7"/></svg>
+      </span>
+      <span class="brand-text">
+        <span class="brand-name">AWB Tracker</span>
+        <span class="brand-sub">Shree Tirupati Courier</span>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <ul class="nav-list">
+        <li><a href="index.html#search-form">Track</a></li>
+        <li><a href="index.html#help">How to use</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html" aria-current="page">Contact</a></li>
+        <li><a class="ext" href="https://www.shreetirupaticourier.net" target="_blank" rel="noopener noreferrer">Courier site</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="page" id="main">
+  <header class="masthead">
+    <h1>Contact us</h1>
+    <p>Questions about this website, something not working, or an idea to make it better? Send us a message and we’ll get back to you.</p>
+  </header>
+
+  <div class="callout">
+    <p><strong>Need help with a parcel?</strong> We can’t see your booking or change a delivery. For a delay, damage or delivery question, call the help desk number shown with your tracking result or visit <a href="https://www.shreetirupaticourier.net" target="_blank" rel="noopener noreferrer">shreetirupaticourier.net</a>.</p>
+  </div>
+
+  <div class="contact-grid">
+    <section class="panel" aria-labelledby="form-title">
+      <div id="form-view">
+        <h2 id="form-title">Send us a message</h2>
+        <p>All fields are required unless marked optional.</p>
+
+        <!-- Collected by Netlify Forms once deployed (see README). Without JavaScript the browser
+             validates and posts this form itself; assets/contact.js adds the friendlier checks. -->
+        <form id="contact-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value="contact">
+          <p hidden><label>Leave this field empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+
+          <div class="field">
+            <label for="f-name">Your name</label>
+            <input class="control" id="f-name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="80" aria-describedby="f-name-error">
+            <p class="field-error" id="f-name-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="f-email">Email address</label>
+            <input class="control" id="f-email" name="email" type="email" autocomplete="email" required maxlength="254" aria-describedby="f-email-hint f-email-error">
+            <p class="hint" id="f-email-hint">We’ll only use this to reply to you.</p>
+            <p class="field-error" id="f-email-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="f-topic">What is your message about?</label>
+            <select class="control" id="f-topic" name="topic" required aria-describedby="f-topic-error">
+              <option value="">Choose a topic</option>
+              <option>General question</option>
+              <option>Problem with the website</option>
+              <option>Tracking result looks wrong</option>
+              <option>Suggestion or feedback</option>
+              <option>Privacy request</option>
+              <option>Other</option>
+            </select>
+            <p class="field-error" id="f-topic-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="f-awb">AWB number <span class="opt">(optional)</span></label>
+            <input class="control" id="f-awb" name="awb" type="text" inputmode="numeric" autocomplete="off" maxlength="16" aria-describedby="f-awb-hint f-awb-error">
+            <p class="hint" id="f-awb-hint">Add it if your message is about a particular search. It has 12 digits.</p>
+            <p class="field-error" id="f-awb-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="f-message">Your message</label>
+            <textarea class="control" id="f-message" name="message" rows="6" required minlength="10" maxlength="2000" aria-describedby="f-message-hint f-message-error"></textarea>
+            <div class="field-foot">
+              <p class="hint" id="f-message-hint">Please don’t include passwords or payment details.</p>
+              <span class="count" id="f-message-count" aria-hidden="true">0 / 2000</span>
+            </div>
+            <p class="field-error" id="f-message-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <div class="check">
+              <input id="f-consent" name="consent" type="checkbox" value="yes" required aria-describedby="f-consent-error">
+              <label for="f-consent">I agree to my details being used to reply to this message, as described in the <a href="privacy-policy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</label>
+            </div>
+            <p class="field-error" id="f-consent-error" hidden></p>
+          </div>
+
+          <div class="callout is-bad" id="send-error" role="alert" hidden>
+            <p><strong>Your message wasn’t sent.</strong> Please check your connection and try again. If it keeps happening, email us at <a href="mailto:[Support Email]">[Support Email]</a>.</p>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" id="send-btn" type="submit">Send message</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="sent-view" hidden>
+        <h2 id="sent-title" tabindex="-1">Thank you, your message is on its way</h2>
+        <p>We’ve received it and will reply to the email address you gave as soon as we can.</p>
+        <p><button class="btn btn-outline" id="again-btn" type="button">Send another message</button></p>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="details-title">
+      <h2 id="details-title">Contact details</h2>
+      <dl class="facts">
+        <dt>Email</dt>
+        <dd><a href="mailto:[Support Email]">[Support Email]</a></dd>
+        <dt>Phone</dt>
+        <dd>[Phone Number]</dd>
+        <dt>Address</dt>
+        <dd>[Business Address]</dd>
+        <dt>Hours</dt>
+        <dd>[Business Hours]</dd>
+      </dl>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-cols">
+      <div>
+        <h2 class="foot-title">Tirupati Courier Services Pvt. Ltd.</h2>
+        <p>Follow your shipment from booking to delivery. Enter the 12-digit AWB number from your booking receipt to see its route, current status and full tracking history.</p>
+        <p>Details are shown as recorded in the courier’s tracking system. If a status looks out of date, use Refresh or check again a little later.</p>
+      </div>
+      <div>
+        <h2 class="foot-title">Need help?</h2>
+        <p>For any query about a shipment, contact the help desk number shown with your tracking result, or visit <a href="https://www.shreetirupaticourier.net" target="_blank" rel="noopener noreferrer">shreetirupaticourier.net</a>.</p>
+      </div>
+    </div>
+    <nav class="foot-nav" aria-label="Footer">
+      <ul class="foot-links">
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html" aria-current="page">Contact Us</a></li>
+        <li><a href="disclaimer.html">Disclaimer</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="terms-and-conditions.html">Terms &amp; Conditions</a></li>
+      </ul>
+    </nav>
+    <div class="foot-bottom">
+      <span>&copy; <span id="year">2026</span> Tirupati Courier Services Pvt. Ltd. All rights reserved.</span>
+      <a href="#top">Back to top</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/site.js"></script>
+<script src="assets/contact.js"></script>
+</body>
+</html>
