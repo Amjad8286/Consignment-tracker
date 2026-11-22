@@ -1,116 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Consignment tracker</title>
-<link rel="canonical" href="https://tirupaticourier.in/">
-<!-- Where the local relay (server.js) listens. Used when this page is opened from disk, VS Code
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consignment tracker</title>
+  <link rel="canonical" href="https://tirupaticourier.in/">
+  <!-- Where the local relay (server.js) listens. Used when this page is opened from disk, VS Code
      Live Server or any other static server. server.js blanks it when it serves the page itself. -->
-<meta name="awb-relay" content="http://localhost:3000">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css">
-<link rel="stylesheet" href="assets/tracker.css">
+  <meta name="awb-relay" content="http://localhost:3000">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/tracker.css">
 </head>
+
 <body>
-<a class="skip-link" href="#main">Skip to main content</a>
+  <a class="skip-link" href="#main">Skip to main content</a>
 
-<header class="site-header" id="top">
-  <div class="wrap">
-    <a class="brand" href="index.html">
-      <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="3.5" cy="9" r="1.5"/><circle cx="14.5" cy="9" r="1.5"/><path d="M5.5 9h7"/></svg>
-      </span>
-      <span class="brand-text">
-        <span class="brand-name">AWB Tracker</span>
-        <span class="brand-sub">Shree Tirupati Courier</span>
-      </span>
-    </a>
-    <nav class="nav" aria-label="Main">
-      <ul class="nav-list">
-        <li><a href="#search-form">Track</a></li>
-        <li><a href="#help">How to use</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a class="ext" href="https://www.shreetirupaticourier.net" target="_blank" rel="noopener noreferrer">Courier site</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
-
-<main class="page" id="main">
-  <header class="masthead">
-    <h1>Consignment tracker</h1>
-    <p>Check where a Shree Tirupati Courier shipment is. Enter the 12-digit AWB number from the booking receipt, or several numbers separated by commas.</p>
+  <header class="site-header" id="top">
+    <div class="wrap">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="3.5" cy="9" r="1.5" />
+            <circle cx="14.5" cy="9" r="1.5" />
+            <path d="M5.5 9h7" />
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">AWB Tracker</span>
+          <span class="brand-sub">Tirupati Courier Tracker</span>
+        </span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <ul class="nav-list">
+          <li><a href="#search-form">Track</a></li>
+          <li><a href="#help">How to use</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a class="ext" href="https://www.shreetirupaticourier.net" target="_blank"
+              rel="noopener noreferrer">Courier site</a></li>
+        </ul>
+      </nav>
+    </div>
   </header>
 
-  <form class="search" id="search-form" novalidate>
-    <label for="awb-input">AWB number</label>
-    <div class="search-row">
-      <input id="awb-input" name="awb" type="text" autocomplete="off" spellcheck="false"
-             placeholder="e.g. 171100087119" aria-describedby="awb-msg">
-      <button class="btn btn-primary" id="track-btn" type="submit">Track</button>
-    </div>
-    <p class="field-msg" id="awb-msg" aria-live="polite">Up to 25 numbers at a time.</p>
-    <div class="recent" id="recent" hidden></div>
-  </form>
+  <main class="page" id="main">
+    <header class="masthead">
+      <h1>Consignment Tracker</h1>
+      <p>Check where a Shree Tirupati Courier shipment is. Enter the 12-digit AWB number from the booking receipt, or
+        several numbers separated by commas.</p>
+    </header>
 
-  <section class="results" id="results" aria-live="polite" aria-busy="false"></section>
-
-  <section class="help" id="help" aria-labelledby="help-title">
-    <h2 id="help-title">How to use</h2>
-    <ol class="steps">
-      <li>
-        <span class="n" aria-hidden="true">1</span>
-        <h3>Enter the AWB number</h3>
-        <p>Use the 12-digit number on the booking receipt. To track several at once, separate them with commas (up to 25).</p>
-      </li>
-      <li>
-        <span class="n" aria-hidden="true">2</span>
-        <h3>Press Track</h3>
-        <p>Status, route and tracking history come live from the courier’s public tracking.</p>
-      </li>
-      <li>
-        <span class="n" aria-hidden="true">3</span>
-        <h3>Refresh or verify</h3>
-        <p>Use Refresh for the latest update, or Open on courier site to see the official page.</p>
-      </li>
-    </ol>
-  </section>
-</main>
-
-<footer class="site-footer">
-  <div class="wrap">
-    <div class="foot-cols">
-      <div>
-        <h2 class="foot-title">Tirupati Courier Services Pvt. Ltd.</h2>
-        <p>Follow your shipment from booking to delivery. Enter the 12-digit AWB number from your booking receipt to see its route, current status and full tracking history.</p>
-        <p>Details are shown as recorded in the courier’s tracking system. If a status looks out of date, use Refresh or check again a little later.</p>
+    <form class="search" id="search-form" novalidate>
+      <label for="awb-input">AWB Number</label>
+      <div class="search-row">
+        <input id="awb-input" name="awb" type="text" autocomplete="off" spellcheck="false"
+          placeholder="e.g. 171100087119" aria-describedby="awb-msg">
+        <button class="btn btn-primary" id="track-btn" type="submit">Track</button>
       </div>
-      <div>
-        <h2 class="foot-title">Need help?</h2>
-        <p>For any query about a shipment, contact the help desk number shown with your tracking result, or visit <a href="https://www.shreetirupaticourier.net" target="_blank" rel="noopener noreferrer">shreetirupaticourier.net</a>.</p>
+      <p class="field-msg" id="awb-msg" aria-live="polite">Up to 25 numbers at a time.</p>
+      <div class="recent" id="recent" hidden></div>
+    </form>
+
+    <section class="results" id="results" aria-live="polite" aria-busy="false"></section>
+
+    <section class="help" id="help" aria-labelledby="help-title">
+      <h2 id="help-title">How to use</h2>
+      <ol class="steps">
+        <li>
+          <span class="n" aria-hidden="true">1</span>
+          <h3>Enter the AWB number</h3>
+          <p>Use the 12-digit number on the booking receipt. To track several at once, separate them with commas (up to
+            25).</p>
+        </li>
+        <li>
+          <span class="n" aria-hidden="true">2</span>
+          <h3>Press Track</h3>
+          <p>Status, route and tracking history come live from the courier’s public tracking.</p>
+        </li>
+        <li>
+          <span class="n" aria-hidden="true">3</span>
+          <h3>Refresh or verify</h3>
+          <p>Use Refresh for the latest update, or Open on courier site to see the official page.</p>
+        </li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="foot-cols">
+        <div>
+          <h2 class="foot-title">Tirupati Courier Services Pvt. Ltd.</h2>
+          <p>Follow your shipment from booking to delivery. Enter the 12-digit AWB number from your booking receipt to
+            see its route, current status and full tracking history.</p>
+          <p>Details are shown as recorded in the courier’s tracking system. If a status looks out of date, use Refresh
+            or check again a little later.</p>
+        </div>
+        <div>
+          <h2 class="foot-title">Need help?</h2>
+          <p>For any query about a shipment, contact the help desk number shown with your tracking result, or visit <a
+              href="https://www.shreetirupaticourier.net" target="_blank"
+              rel="noopener noreferrer">shreetirupaticourier.net</a>.</p>
+        </div>
+      </div>
+      <nav class="foot-nav" aria-label="Footer">
+        <ul class="foot-links">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms-and-conditions.html">Terms &amp; Conditions</a></li>
+        </ul>
+      </nav>
+      <div class="foot-bottom">
+        <span>&copy; <span id="year">2026</span> Tirupati Courier Services Pvt. Ltd. All rights reserved.</span>
+        <a href="#top">Back to top</a>
       </div>
     </div>
-    <nav class="foot-nav" aria-label="Footer">
-      <ul class="foot-links">
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="contact.html">Contact Us</a></li>
-        <li><a href="disclaimer.html">Disclaimer</a></li>
-        <li><a href="privacy-policy.html">Privacy Policy</a></li>
-        <li><a href="terms-and-conditions.html">Terms &amp; Conditions</a></li>
-      </ul>
-    </nav>
-    <div class="foot-bottom">
-      <span>&copy; <span id="year">2026</span> Tirupati Courier Services Pvt. Ltd. All rights reserved.</span>
-      <a href="#top">Back to top</a>
-    </div>
-  </div>
-</footer>
+  </footer>
 
-<script src="assets/site.js"></script>
-<script src="assets/tracker.js"></script>
+  <script src="assets/site.js"></script>
+  <script src="assets/tracker.js"></script>
 </body>
+
 </html>
